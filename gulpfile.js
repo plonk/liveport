@@ -21,6 +21,7 @@ gulp.task('default', (cb) => {
     runSequence("build", "serve", cb)
 });
 gulp.task("build", ["wp:b", "wp:r", "ts:compile", "assets:copy"]);
+gulp.task("build:prod", ["wp:b", "wp:r", "ts:compile:prod", "assets:copy"]);
 
 gulp.task('wp:b', () => {
     return gulp.src('./src/browser/entry.ts')
