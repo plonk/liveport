@@ -1,8 +1,8 @@
 ## liveport  - live broadcast support tool.
-したらば掲示板・CaveTubeのコメントを、ブラウザ上に表示・読み上げ  
+したらば掲示板・2ch互換掲示板のコメントを、ブラウザ上に表示・読み上げ  
 ### [download](https://github.com/odangosan/liveport/releases)
 ### 概要
-したらば掲示板・CaveTubeのコメントを、読み上げます。  
+したらば掲示板・2ch互換掲示板のコメントを、読み上げます。  
 OBS Studioを使用している場合、字幕をOBS Studio内で表示することが出来ます。
 ### 使い方
 #### スレッドビューワーとして使う場合
@@ -40,7 +40,7 @@ OBS Studioを使用している場合、字幕をOBS Studio内で表示するこ
 
 ### 対応しているURL
  * したらば[http://jbbs.shitaraba.net/bbs/read.cgi/[ジャンル]/[掲示板ID]/[スレッドID]/]
- * CaveTube[https://www.cavelis.net/live/[配信名]] 
+ * 2ch互換掲示板[http://ホスト名/test/read.cgi/[掲示板ID]/[スレッドID]/]
 
 ### 読み上げボイスを変える
  * デフォルトの[WSA]を使うためには

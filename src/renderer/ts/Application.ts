@@ -3,7 +3,6 @@ import * as Vue from "Vue";
 import { Component, Watch } from "vue-typed"
 import { DataSource } from "./DataSource";
 import { Shitaraba } from "./Shitaraba";
-import { CaveTube } from "./CaveTube";
 import { Nichan } from "./Nichan";
 import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
@@ -439,7 +438,7 @@ export default class Application extends Vue {
     }
 
     isvalidThreadUrl(): boolean {
-        return Shitaraba.isValidThreadURL(this.url) || CaveTube.isValidURL(this.url) || Nichan.isValidThreadURL(this.url);
+        return Shitaraba.isValidThreadURL(this.url) || Nichan.isValidThreadURL(this.url);
     }
 
     // allocate
@@ -447,12 +446,6 @@ export default class Application extends Vue {
         if (Shitaraba.isValidThreadURL(this.url)) {
             this.url = Shitaraba.getFormattingShitarabaUrl(this.url);
             this.thread = new Shitaraba(this.url);
-            if (load) {
-                this.thread.load();
-            }
-        }
-        if (CaveTube.isValidURL(this.url)) {
-            this.thread = new CaveTube(this.url);
             if (load) {
                 this.thread.load();
             }
