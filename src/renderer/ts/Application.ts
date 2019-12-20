@@ -248,7 +248,7 @@ export default class Application extends Vue {
         }
         if (this.isValidBBSUrl()) {
             if (Shitaraba.isValidBBSURL(this.url)) {
-            this.thread = new Shitaraba(this.url);
+                this.thread = new Shitaraba(this.url);
             } else if (Nichan.isValidBBSURL(this.url)) {
                 this.thread = new Nichan(this.url);
             } else {
@@ -461,7 +461,7 @@ export default class Application extends Vue {
             this.thread = new Nichan(this.url);
             if (load) {
                 this.thread.load();
-    }
+            }
         }
     }
 
