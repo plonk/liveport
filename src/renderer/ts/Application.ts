@@ -505,6 +505,7 @@ export default class Application extends Vue {
     }
 
     version = VERSION;
+    electronVersion = require('electron').remote.process.versions.electron;
 
     getValueOrDefault(value1: any, value2: any) {
         if (typeof value1 === "undefined")

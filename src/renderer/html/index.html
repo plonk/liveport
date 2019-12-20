@@ -141,7 +141,11 @@
                     </label>
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i v-on:click="clearDataSource()" class="material-icons cursor--hand">info</i> version:{{version}}</label>                  
+                        <label><i title="クリックでキャッシュを削除" v-on:click="clearDataSource()" class="material-icons cursor--hand">info</i> バージョン情報</label>
+                        <div>
+                            liveport version:{{version}}<br>
+                            Electron version:{{electronVersion}}
+                        </div>
                     </span>
                 </nav>
             </div>
