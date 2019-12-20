@@ -6,3 +6,4 @@ release/
 typings/
 env.json
 bounds.json
+**/ts/*.js
