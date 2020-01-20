@@ -12,6 +12,7 @@
     "license": "ISC",
     "devDependencies": {
         "@types/socket.io": "^1.4.27",
+        "@types/tmi.js": "^1.4.0",
         "autoprefixer": "^6.5.3",
         "copy-webpack-plugin": "^4.0.0",
         "css-loader": "^0.25.0",
@@ -50,6 +51,7 @@
         "script-loader": "^0.7.0",
         "socket.io-client": "^1.5.1",
         "style-loader": "^0.13.1",
+        "tmi.js": "^1.5.0",
         "ts-loader": "^1.0.0",
         "typescript": "^2.0.8",
         "typings": "^1.5.0",
