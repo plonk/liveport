@@ -24,7 +24,7 @@ export class Twitch extends DataSource {
             console.log("tmi message:", target, context, msg, self);
 
             var res = new Message();
-            let num = this.messages.length + this.queue.length + 1;
+            let num = this.messages.length + 1;
             let name = context["display-name"];
             let mail = "sage";
             let date = this.formatDate();
@@ -37,7 +37,7 @@ export class Twitch extends DataSource {
                 // Twitchでレスアンカは無いのでアンカの内部リンク化は省略する。
                 res.decorateText = Twitch.embedEmotes(context.emotes, msg);
             }
-            this.queue.push(res);
+            this.messages.push(res);
         });
         this.client.on("connected", ()=>{
             console.log("tmi connected");
@@ -73,12 +73,9 @@ export class Twitch extends DataSource {
     }
 
     request(success: (number) => void, failed: (err: any) => void) {
-        var ret = this.queue.length;
         this.messages.forEach(m => m.latest = false);
-        this.messages = this.messages.concat(this.queue);
-        this.queue = [];
         this.save();
-        success(ret);
+        success(0);
     }
 
     getSetting(success: () => void, failed: (err: any) => void) {
