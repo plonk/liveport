@@ -50,12 +50,12 @@ export class Twitch extends DataSource {
 
     formatDate(date: Date = new Date()): string {
         const Y = date.getFullYear();
-        const m = date.getMonth() + 1;
+        const m = (date.getMonth() + 1).toString().padStart(2,'0');
         const wday = "日月火水木金土".substr(date.getDay(), 1);
-        const d = date.getDate();
-        const H = date.getHours();
-        const M = date.getMinutes();
-        const S = date.getSeconds();
+        const d = date.getDate().toString().padStart(2,'0');
+        const H = date.getHours().toString().padStart(2,'0');
+        const M = date.getMinutes().toString().padStart(2,'0');
+        const S = date.getSeconds().toString().padStart(2,'0');
 
         return `${Y}/${m}/${d}(${wday}) ${H}:${M}:${S}`;
     }
