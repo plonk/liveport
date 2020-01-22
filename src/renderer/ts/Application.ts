@@ -404,12 +404,9 @@ export default class Application {
     }
 
     get formattedTimes() {
-        let rtcd = this.zeroPadding(this.reloadTimerCountDown);
-        let rd = this.zeroPadding(this.reload);
+        let rtcd = this.reloadTimerCountDown.toString().padStart(2,'0');
+        let rd = this.reload.toString().padStart(2,'0');
         return `reload:[${rtcd}/${rd}] next:[${this.provideStatus}]`
-    }
-    zeroPadding(number: number, length: number = 2) {
-        return (Array(length).join('0') + number).slice(-length);
     }
 
     path: string = "";
