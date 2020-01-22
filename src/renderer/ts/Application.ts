@@ -1,5 +1,5 @@
 "use strict"
-import * as Vue from "Vue";
+import * as Vue from "vue";
 import { Component, Watch } from "vue-typed"
 import { DataSource } from "./DataSource";
 import { Shitaraba } from "./Shitaraba";

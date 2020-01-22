@@ -1,5 +1,5 @@
 import SofTalk from "./SofTalk"
-import WebspeechApi from "./WebspeechApi"
+import WebSpeechApi from "./WebSpeechApi"
 import Tamiyasu from "./Tamiyasu"
 import Bouyomi from "./Bouyomi"
 import { VOICE, VoiceParameter } from "./Voice"
@@ -116,7 +116,7 @@ export default class ProvideManager {
     selectVoice(path?: string) {
         Logger.log("select speaker", VOICE[this.voice.toString()]);
         if (this.voice === VOICE.WSA) {
-            this.speaker = new WebspeechApi();
+            this.speaker = new WebSpeechApi();
         } else if (this.voice === VOICE.SOFTALK) {
             this.speaker = new SofTalk(path);
         } else if (this.voice === VOICE.TAMIYASU) {
