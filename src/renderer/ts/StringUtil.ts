@@ -16,9 +16,24 @@ class StringUtil {
 
     static urlToLink(text: string): string {
         var exp = new RegExp(SystemDictionary.URL.pattern, "ig");
-        let matches = text.match(exp);
-        return text.replace(exp,
-            "<a href= \"" + "http:$3" + "\" target=\"_blank\">$1</a>");
+        var res = "";
+        while (text !== "") {
+            let matches = text.match(/^<.*?>/m);
+            if (matches) {
+                res += matches[0];
+                text = text.substr(matches[0].length);
+            } else {
+                matches = text.match(/^[^<]+/m);
+                if (matches) {
+                    res += matches[0].replace(exp, "<a href= \"http:$3\" target=\"_blank\">$1</a>");
+                    text = text.substr(matches[0].length);
+                } else {
+                    console.error(text);
+                    throw Error("unclosed angle bracket");
+                }
+            }
+        }
+        return res;
     }
 
     static imageUrlToLinkStrings(text: string): string {

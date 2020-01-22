@@ -3,7 +3,6 @@ import Message from "./Message";
 import { DataSource, ThreadList } from "./DataSource";
 import * as tmi from "tmi.js";
 
-
 export class Twitch extends DataSource {
     client: tmi.Client = null;
     queue: Message[] = [];
@@ -29,11 +28,15 @@ export class Twitch extends DataSource {
             let name = context["display-name"];
             let mail = "sage";
             let date = this.formatDate();
-            let text = msg;
+            let text = this.escapeHtml(msg).replace(/\r?\n/mg, "<br>");
             let title = "";
             let latest = true;
             let id = "";
             res.setParameters(num, name, mail, date, text, title, id, latest);
+            if (context.emotes) {
+                // Twitchでレスアンカは無いのでアンカの内部リンク化は省略する。
+                res.decorateText = Twitch.embedEmotes(context.emotes, msg);
+            }
             this.queue.push(res);
         });
         this.client.on("connected", ()=>{
@@ -46,6 +49,15 @@ export class Twitch extends DataSource {
 
         this.client.connect();
         this.parentTitle = "Twitch";
+    }
+
+    escapeHtml(unsafe: string): string {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
     }
 
     formatDate(date: Date = new Date()): string {
@@ -83,6 +95,29 @@ export class Twitch extends DataSource {
 
     unload() {
         this.client.disconnect();
+    }
+
+    static emoteLink(emoteId: string, text: string) {
+        console.log("emoteLink", emoteId, text);
+        return `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0" alt="${text}" />`;
+    }
+
+    static embedEmotes(emotes, msg: string): string {
+        let rangeToEmote = {};
+        for (let emoteId of Object.keys(emotes)) {
+            for (let range of emotes[emoteId]) {
+                rangeToEmote[range] = emoteId;
+            }
+        }
+
+        let ranges = Object.keys(rangeToEmote);
+        ranges.sort((a, b) => +b.split('-')[0] - +a.split('-')[0]);
+        for (let range of ranges) {
+            let tmp = range.split('-');
+            let beg = +tmp[0], end = +tmp[1] + 1;
+            msg = msg.slice(0, beg) + Twitch.emoteLink(rangeToEmote[range], msg.slice(beg, end)) + msg.slice(end);
+        }
+        return msg;
     }
 
     static getFormattedUrl(url: string): string {
