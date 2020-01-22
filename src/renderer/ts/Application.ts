@@ -83,12 +83,12 @@ export default class Application {
     provideTimeLimit = 10;
     provideTimerID = null;
     lastProvideStart = 0;
-
     startProvide() {
         if (!this.processing)
             return;
 
         if (this.pManager.speaker.speaking()) {
+            this.provideStatus = "busy";
             if (+new Date() - this.lastProvideStart >= this.provideTimeLimit*1000) {
                 this.pManager.cancel();
             }
@@ -96,6 +96,7 @@ export default class Application {
                 this.startProvide();
             }, 1000);
         } else {
+            this.provideStatus = "idle";
             let provide = () => {
                 if (!this.processing) return;
                 let target = this.thread.messages[this.thread.bookmark];
