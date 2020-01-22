@@ -1,11 +1,10 @@
 "use strict"
-import * as Vue from "vue";
 import { Component, Watch } from "vue-typed"
 import { DataSource } from "./DataSource";
 import { Shitaraba } from "./Shitaraba";
 import { Nichan } from "./Nichan";
-import { VOICE, VoiceParameter } from "./Voice"
-import StringUtil from "./StringUtil";
+import { Twitch } from "./Twitch";
+import { VOICE } from "./Voice"
 import ProvideManager from "./ProvideManager";
 import { configure } from "./Configure"
 const LETTER: string = configure.letter;
@@ -22,14 +21,13 @@ enum KEY {
 }
 
 @Component({})
-export default class Application extends Vue {
+export default class Application {
     pManager: ProvideManager;
     testMessage: string = 'このテキストはテストメッセージです';
     url: string = "";
     processing: boolean = false;
     thread: DataSource;
     constructor() {
-        super();
         console.log("hello application.");
         this.init();
     }
