@@ -100,10 +100,7 @@ export default class Application {
                 if (!this.processing) return;
                 let target = this.thread.messages[this.thread.bookmark];
 
-                let tmpLetter = LETTER.split("$1");
-                let letter = tmpLetter.length > 1 ?
-                    tmpLetter[0] + target.num + tmpLetter[1]
-                    : target.num.toString();
+                const letter = this.interpolateLetter(target.num);
 
                 this.lastProvideStart = +new Date();
                 this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.provideTimeLimit);
@@ -127,6 +124,13 @@ export default class Application {
                 }, 1000);
             }
         }
+    }
+
+    interpolateLetter(num: number) {
+        let tmpLetter = LETTER.split("$1");
+        return tmpLetter.length > 1 ?
+            tmpLetter[0] + num + tmpLetter[1]
+            : num.toString();
     }
 
     stopProvide() {
