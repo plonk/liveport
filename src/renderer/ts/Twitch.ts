@@ -81,6 +81,7 @@ export class Twitch extends DataSource {
 
     request(success: (number) => void, failed: (err: any) => void) {
         var ret = this.queue.length;
+        this.messages.forEach(m => m.latest = false);
         this.messages = this.messages.concat(this.queue);
         this.queue = [];
         this.save();
