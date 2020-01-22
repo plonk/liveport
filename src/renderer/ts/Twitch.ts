@@ -24,8 +24,6 @@ export class Twitch extends DataSource {
         this.client.on("message", (target, context, msg, self)=>{
             console.log("tmi message:", target, context, msg, self);
 
-            console.log(target, context);
-
             var res = new Message();
             let num = this.messages.length + this.queue.length + 1;
             let name = context["display-name"];
@@ -40,31 +38,14 @@ export class Twitch extends DataSource {
         });
         this.client.on("connected", ()=>{
             console.log("tmi connected");
-
-            this.queueSystemMessage(`チャンネル${this.channelName}に接続しました。`);
-
             this.title = this.channelName;
         });
         this.client.on("disconnected", () => {
             console.log("tmi disconnected");
-            this.queueSystemMessage("チャットサーバーとの接続が切断されました。");
         });
 
         this.client.connect();
         this.parentTitle = "Twitch";
-    }
-
-    queueSystemMessage(text: string) {
-        var res = new Message();
-        let num = this.messages.length + this.queue.length + 1;
-        let name = "liveport";
-        let mail = "sage";
-        let date = this.formatDate();
-        let title = "";
-        let latest = true;
-        let id = "";
-        res.setParameters(num, name, mail, date, text, title, id, latest);
-        this.queue.push(res);
     }
 
     formatDate(date: Date = new Date()): string {
