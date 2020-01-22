@@ -503,6 +503,7 @@ export default class Application {
     }
 
     version = VERSION;
+    electronVersion = require('electron').remote.process.versions.electron;
 
     getValueOrDefault(value1: any, value2: any) {
         if (typeof value1 === "undefined")
