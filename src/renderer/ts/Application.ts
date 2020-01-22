@@ -371,11 +371,6 @@ export default class Application {
             console.log(data.message);
     }
 
-    test(letter: string, body: string) {
-        this.pManager.selectVoice(this.path);
-        this.pManager.provide(letter, body, this.pManager.reading, null, this.provideTimeLimit);
-    }
-
     autoScroll: boolean = false;
     flipAutoScroll() {
         this.autoScroll = !this.autoScroll;
@@ -563,7 +558,6 @@ export default class Application {
         this.reload = Number(this.getValueOrDefault(settings.reload, this.reload));
         this.reloadTimerCountDown = this.reload;
         this.provideTimeLimit = Number(this.getValueOrDefault(settings.provideTimeLimit, this.provideTimeLimit));
-        this.provideTimerLimitCountDown = this.provideTimeLimit;
         this.pManager.reading = Boolean(this.getValueOrDefault(settings.reading, this.pManager.reading));
         this.path = this.getValueOrDefault(settings.path, this.path);
         this.dummyTextTemp = this.dummyText = this.getValueOrDefault(settings.dummyText, this.dummyText);

@@ -10,10 +10,6 @@ import { Speaker } from "./Speaker"
 import { configure } from "./Configure"
 import VoiceTextApi from "./VoiceTextApi"
 const SystemDictionary = configure.SystemDictionary;
-const NgDictionary: string[] = configure.NgDictionary;
-const port = configure.port
-const AA_TEMPLATE = "このメッセージはアスキーアートです。";
-const LONG_TEXT_TEMPLATE = "長文のため省略";
 const MODE = {
     AA: "aa",
     MESSAGE: "message"
