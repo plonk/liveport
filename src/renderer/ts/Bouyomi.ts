@@ -13,7 +13,7 @@ class SofTalk implements Speaker {
     constructor(path: string) {
         this.path = path;
     }
-    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
+    speak(text: string, vParam: VoiceParameter) {
         var args = "";
         args += " /Talk " + "\"" + text.replace(/\n/gi, "  ") + "\"";
         if (vParam.use) args += " " + vParam.adjustmentRate(50, 300);

@@ -96,7 +96,7 @@ export default class Application {
             let letter = tmpLetter.length > 1 ?
                 tmpLetter[0] + target.num + tmpLetter[1]
                 : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
+            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.provideTimeLimit);
             this.thread.next();
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);

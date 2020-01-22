@@ -14,7 +14,7 @@ class WebSpeechApi implements Speaker {
         this.speech.lang = 'ja-JP'; // en-US or ja-JP
     }
     // 0-1 0-10 0-2
-    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
+    speak(text: string, vParam: VoiceParameter) {
         // 音量 min 0 ~ max 1
         this.speech.volume = vParam.use ? vParam.adjustmentVolume(0, 1) : defaultParameter.volume;
         // 速度 min 0 ~ max 10

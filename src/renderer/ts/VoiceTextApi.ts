@@ -11,7 +11,7 @@ class VoiceTextApi implements Speaker {
         this.key = vtApiKey;
     }
 
-    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
+    speak(text: string, vParam: VoiceParameter) {
         var encoded = encodeURIComponent(text);
         var options = {
             url: `https://${this.key}:@api.voicetext.jp/v1/tts`,

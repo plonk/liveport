@@ -14,7 +14,7 @@ class Tamiyasu implements Speaker {
         this.path = path;
     }
     // Tamiyasuは読み上げ終了を検知出来ない
-    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
+    speak(text: string, vParam: VoiceParameter) {
         var args = text.replace(/\n/gi, "  ");
         cp.spawn(this.path, [args]).on("exit", (code) => {
             Logger.log("result", code);
