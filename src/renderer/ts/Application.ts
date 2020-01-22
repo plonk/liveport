@@ -27,6 +27,8 @@ export default class Application {
     url: string = "";
     processing: boolean = false;
     thread: DataSource;
+    dataSources = [Shitaraba, Twitch, Nichan];
+
     constructor() {
         console.log("hello application.");
         this.init();
@@ -135,7 +137,7 @@ export default class Application {
             return;
         }
 
-        if (this.isValidBBSUrl()) {
+        if (!this.isValidThreadUrl() && this.isValidBbsUrl()) {
             this.showLists();
             this.processing = false;
             return;
@@ -193,32 +195,32 @@ export default class Application {
     }
 
     requestOnce(load: boolean = false) {
+        console.log("requestOnce", this.url);
         this.stop();
-        if (this.isValidBBSUrl()) {
-            this.showLists();
-            return;
-        }
-        if (!this.isvalidThreadUrl()) {
-            return;
-        }
-        this.showListView = false;
-        this.loadUrlSource(load);
-        if (load) this.initScroll();
-        this.snackbar({ message: "読み込みを開始しました" });
-        this.getBbsTitle();
-        this.thread.request(
-            (newArrival: number) => {
-                this.snackbar({ message: "読み込みに成功しました" });
-                console.log("request success", newArrival.toString());
-            },
-            (err: any) => {
-                console.log("request failed", err);
-                let warn = {
-                    message: "ERROR : " + err, timeout: 1500
+        if (this.isValidThreadUrl()) {
+            this.showListView = false;
+            this.loadUrlSource(load);
+            if (load) this.initScroll();
+            this.snackbar({ message: "読み込みを開始しました" });
+            this.getBbsTitle();
+            this.thread.request(
+                (newArrival: number) => {
+                    this.snackbar({ message: "読み込みに成功しました" });
+                    console.log("request success", newArrival.toString());
+                },
+                (err: any) => {
+                    console.log("request failed", err);
+                    let warn = {
+                        message: "ERROR : " + err, timeout: 1500
+                    }
+                    this.snackbar(warn);
                 }
-                this.snackbar(warn);
-            }
-        );
+            );
+        } else if (this.isValidBbsUrl()) {
+            this.showLists();
+        } else {
+            return;
+        }
     }
 
     getBbsTitle() {
@@ -240,19 +242,21 @@ export default class Application {
 
     showLists() {
         this.showListView = true;
+
         if (!this.isValidURL()) {
             this.snackbar({ message: "URLが正しくありません" });
+            return;
         }
-        if (this.isValidBBSUrl()) {
-            if (Shitaraba.isValidBBSURL(this.url)) {
-                this.thread = new Shitaraba(this.url);
-            } else if (Nichan.isValidBBSURL(this.url)) {
-                this.thread = new Nichan(this.url);
-            } else {
-                // 上の２節のどちらかは通るはず。
-                throw new Error("logic error");
-            }
-        }
+        
+        // if (this.isValidBbsUrl()) {
+        //     for (var ds of this.dataSources) {
+        //         if (ds.isValidBbsUrl(this.url)) {
+        //             this.thread = new ds(this.url);
+        //             break;
+        //         }
+        //     }
+        // }
+
         this.snackbar({ message: "一覧の読み込みを開始" });
         this.thread.getLists(() => {
             this.snackbar({ message: "一覧の読み込みに成功" });
@@ -312,7 +316,7 @@ export default class Application {
     }
 
     get validThreadControlls() {
-        return !this.isvalidThreadUrl() || this.showListView;
+        return !this.isValidThreadUrl() || this.showListView;
     }
 
     get validUrl() {
@@ -425,33 +429,29 @@ export default class Application {
             console.log("invalid url", "no input.");
             return false;
         }
-        if (this.isValidBBSUrl()) {
-            return true;
-        }
-        return this.isvalidThreadUrl();
+        return this.isValidBbsUrl() || this.isValidThreadUrl();
     }
 
-    isValidBBSUrl() {
-        return Shitaraba.isValidBBSURL(this.url) || Nichan.isValidBBSURL(this.url) ;
+    isValidBbsUrl(): boolean {
+        return this.dataSources.some(ds => ds.isValidBbsUrl(this.url));
     }
 
-    isvalidThreadUrl(): boolean {
-        return Shitaraba.isValidThreadURL(this.url) || Nichan.isValidThreadURL(this.url);
+    isValidThreadUrl(): boolean {
+        return this.dataSources.some(ds => ds.isValidThreadUrl(this.url));
     }
 
     // allocate
     loadUrlSource(load: boolean = true) {
-        if (Shitaraba.isValidThreadURL(this.url)) {
-            this.url = Shitaraba.getFormattingShitarabaUrl(this.url);
-            this.thread = new Shitaraba(this.url);
-            if (load) {
-                this.thread.load();
-            }
-        }
-        if (Nichan.isValidThreadURL(this.url)) {
-            this.thread = new Nichan(this.url);
-            if (load) {
-                this.thread.load();
+        for (var ds of this.dataSources) {
+            if (ds.isValidThreadUrl(this.url)) {
+                if (ds.getFormattedUrl) {
+                    this.url = ds.getFormattedUrl(this.url);
+                }
+                this.thread = new ds(this.url);
+                if (load) {
+                    this.thread.load();
+                }
+                return;
             }
         }
     }
@@ -561,7 +561,7 @@ export default class Application {
         this.url = this.getValueOrDefault(settings.url, this.url);
         if (argv.url) { this.url = argv.url; }
         if (this.url) {
-            if (this.isvalidThreadUrl()) {
+            if (this.isValidThreadUrl()) {
                 this.requestOnce(true);
             }
         }

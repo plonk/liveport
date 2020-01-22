@@ -34,6 +34,7 @@
         "src/renderer/ts/StringUtil.ts",
         "src/renderer/ts/Shitaraba.ts",
         "src/renderer/ts/Nichan.ts",
+        "src/renderer/ts/Twitch.ts",
         "src/renderer/ts/Voice.ts",
         "src/renderer/ts/VoiceTextApi.ts",
         "src/renderer/ts/WebSpeechApi.ts"

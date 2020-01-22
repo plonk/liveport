@@ -213,19 +213,23 @@ export class Nichan extends DataSource {
         if (!this.url) {
             return { valid: false, text: "URLが設定されていません" };
         }
-        if (Nichan.isValidBBSURL(this.url)) {
+        if (Nichan.isValidBbsUrl(this.url)) {
             return { valid: false, text: "掲示板のURLが選択されていません" };
         }
-        if (!Nichan.isValidThreadURL(this.url)) {
+        if (!Nichan.isValidThreadUrl(this.url)) {
             return { valid: false, text: "掲示板のURLが選択されていません" };
         }
         return { valid: true, text: "" };
     }
 
-    static isValidThreadURL(url: string): boolean {
+    static getFormattedUrl(url: string): string {
+        return url;
+    }
+
+    static isValidThreadUrl(url: string): boolean {
         return NICHAN_THREAD_REGEX.test(url);
     }
-    static isValidBBSURL(url: string): boolean {
+    static isValidBbsUrl(url: string): boolean {
         return NICHAN_BBS_REGEX.test(url);
     }
 }
