@@ -10,12 +10,15 @@ const defaultParameter = {
 }
 class Tamiyasu implements Speaker {
     path: string = "";
+    _speaking = false;
+
     constructor(path: string) {
         this.path = path;
     }
     // Tamiyasuは読み上げ終了を検知出来ない
     speak(text: string, vParam: VoiceParameter) {
         var args = text.replace(/\n/gi, "  ");
+        this._speaking = true;
         cp.spawn(this.path, [args]).on("exit", (code) => {
             Logger.log("result", code);
         }).on("error", (err) => {
@@ -25,13 +28,11 @@ class Tamiyasu implements Speaker {
     }
 
     cancel() {
-        // var args = " /stop_now";
-        // cp.exec(this.path + args, (e, s) => {
-        //     console.log(s);
-        // });
+        this._speaking = false;
     }
+
     speaking() {
-        return false;
+        return this._speaking;
     }
 
     public static calcStringSize(text: string, timeLimit: number) {
