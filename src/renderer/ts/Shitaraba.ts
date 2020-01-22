@@ -254,6 +254,9 @@ export class Shitaraba extends DataSource {
             }
         }
     }
+
+    unload() {}
+
     static isValidThreadUrl(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }

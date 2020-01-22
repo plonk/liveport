@@ -79,6 +79,8 @@ export abstract class DataSource {
         return JSON.stringify(this);
     }
 
+    abstract unload();
+
     static loadDataSource(url: string) {
         return localStorage.getItem(url);
     }

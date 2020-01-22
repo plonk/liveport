@@ -221,6 +221,8 @@ export class Nichan extends DataSource {
         }
         return { valid: true, text: "" };
     }
+    
+    unload() {}
 
     static getFormattedUrl(url: string): string {
         return url;

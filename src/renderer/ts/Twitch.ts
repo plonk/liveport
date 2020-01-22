@@ -81,7 +81,7 @@ export class Twitch extends DataSource {
         failed("非対応");
     }
 
-    onUnload() {
+    unload() {
         this.client.disconnect();
     }
 

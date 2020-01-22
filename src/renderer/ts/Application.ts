@@ -444,6 +444,12 @@ export default class Application {
         return this.dataSources.some(ds => ds.isValidThreadUrl(this.url));
     }
 
+    unloadDataSource() {
+        if (this.thread)
+            this.thread.unload();
+        this.thread = null;
+    }
+
     // allocate
     loadUrlSource(load: boolean = true) {
         for (var ds of this.dataSources) {
@@ -451,6 +457,7 @@ export default class Application {
                 if (ds.getFormattedUrl) {
                     this.url = ds.getFormattedUrl(this.url);
                 }
+                this.unloadDataSource();
                 this.thread = new ds(this.url);
                 if (load) {
                     this.thread.load();
@@ -517,6 +524,7 @@ export default class Application {
 
     init() {
         this.pManager = new ProvideManager();
+        this.unloadDataSource();
         this.thread = new Shitaraba("dummyThread");
         this.port = port;
         let argv = this.getArgv();
@@ -684,6 +692,7 @@ export default class Application {
     clearDataSource() {
         DataSource.clearAllDataSource();
         this.snackbar({ message: "キャッシュを消去しました" });
+        this.unloadDataSource();
         this.thread = new Shitaraba("dummyThread");
         this.url = "";
     }
