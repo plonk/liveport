@@ -18,12 +18,18 @@ class VoiceTextApi implements Speaker {
         }
         this._speaking = true;
         
+        let extraParams = "";
+        if (vParam.use) {
+            extraParams += "&pitch=" + Math.round(vParam.adjustPitch(50, 200));
+            extraParams += "&speed=" + Math.round(vParam.adjustRate(50, 400));
+            extraParams += "&volume=" + Math.round(vParam.adjustVolume(50, 200));
+        }
         var options = {
             url: `https://${this.key}:@api.voicetext.jp/v1/tts`,
             //auth: '',
             encoding: null,
             timeout: 15000,
-            form: "speaker=hikari&text=" + encodeURIComponent(text) + "&format=mp3",
+            form: "speaker=hikari&text=" + encodeURIComponent(text) + "&format=mp3" + extraParams,
         };
         rp.post(options).then(data => {
             const durl = dataurl.convert({ data, mimetype: 'audio/mp3' });

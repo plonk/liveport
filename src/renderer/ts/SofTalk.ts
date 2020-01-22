@@ -17,9 +17,9 @@ class SofTalk implements Speaker {
     // SofTalkは読み上げ終了を検知出来ない
     speak(text: string, vParam: VoiceParameter) {
         var args = "";
-        if (vParam.use) args += " /V:" + vParam.adjustmentVolume(0, 100);
-        if (vParam.use) args += " /S:" + vParam.adjustmentRate(1, 300);
-        if (vParam.use) args += " /O:" + vParam.adjustmentPitch(1, 300);
+        if (vParam.use) args += " /V:" + vParam.adjustVolume(0, 100);
+        if (vParam.use) args += " /S:" + vParam.adjustRate(1, 300);
+        if (vParam.use) args += " /O:" + vParam.adjustPitch(0, 300);
         args += " /W:" + text.replace(/\n/gi, "  ");
 
         // console.log(this.path +" " +args);

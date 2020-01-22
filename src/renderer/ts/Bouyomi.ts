@@ -16,9 +16,9 @@ class SofTalk implements Speaker {
     speak(text: string, vParam: VoiceParameter) {
         var args = "";
         args += " /Talk " + "\"" + text.replace(/\n/gi, "  ") + "\"";
-        if (vParam.use) args += " " + vParam.adjustmentRate(50, 300);
-        if (vParam.use) args += " " + vParam.adjustmentPitch(50, 200);
-        if (vParam.use) args += " " + vParam.adjustmentVolume(0, 100);
+        if (vParam.use) args += " " + vParam.adjustRate(50, 300);
+        if (vParam.use) args += " " + vParam.adjustPitch(50, 200);
+        if (vParam.use) args += " " + vParam.adjustVolume(0, 100);
         //voice-type
         if (vParam.use) args += " 0";
 
