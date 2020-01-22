@@ -99,7 +99,7 @@ export class Twitch extends DataSource {
 
     static emoteLink(emoteId: string, text: string) {
         console.log("emoteLink", emoteId, text);
-        return `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0" alt="${text}" />`;
+        return `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0" title="${text}" />`;
     }
 
     static embedEmotes(emotes, msg: string): string {
