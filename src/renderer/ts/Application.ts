@@ -371,6 +371,11 @@ export default class Application {
             console.log(data.message);
     }
 
+    test(letter: string, body: string) {
+        this.pManager.selectVoice(this.path);
+        this.pManager.provide(letter, body, this.pManager.reading, this.provideTimeLimit);
+    }       
+
     autoScroll: boolean = false;
     flipAutoScroll() {
         this.autoScroll = !this.autoScroll;
