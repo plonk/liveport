@@ -79,55 +79,64 @@ export default class Application {
         }
     }
 
-    // 読み上げ時間数上限
-    provideTimeLimit: number = 10;
-    // 表示タイマーID
-    provideTimerID: number;
-    // 表示カウントダウン
-    provideTimerLimitCountDown: number = this.provideTimeLimit;
+    provideStatus = "idle";
+    provideTimeLimit = 10;
+    provideTimerID = null;
+    lastProvideStart = 0;
 
     startProvide() {
-        if (!this.processing) return;
-        this.provideTimerLimitCountDown = this.provideTimeLimit;
-        let provide = () => {
-            if (!this.processing) return;
-            let target = this.thread.messages[this.thread.bookmark];
-            let tmpLetter = LETTER.split("$1");
-            let letter = tmpLetter.length > 1 ?
-                tmpLetter[0] + target.num + tmpLetter[1]
-                : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.provideTimeLimit);
-            this.thread.next();
-            if (this.autoScroll)
-                this.scrollTo(this.thread.bookmark);
-        }
-        if (this.thread.bookmark != this.thread.allNum()) {
-            if (this.playingNotificationSound) this.notificationSound(provide);
-            else provide();
+        if (!this.processing)
+            return;
+
+        if (this.pManager.speaker.speaking()) {
+            if (+new Date() - this.lastProvideStart >= this.provideTimeLimit*1000) {
+                this.pManager.cancel();
+            }
+            this.provideTimerID = setTimeout(() => {
+                this.startProvide();
+            }, 1000);
         } else {
-            this.haltProvide();
+            let provide = () => {
+                if (!this.processing) return;
+                let target = this.thread.messages[this.thread.bookmark];
+
+                let tmpLetter = LETTER.split("$1");
+                let letter = tmpLetter.length > 1 ?
+                    tmpLetter[0] + target.num + tmpLetter[1]
+                    : target.num.toString();
+
+                this.lastProvideStart = +new Date();
+                this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.provideTimeLimit);
+                this.thread.next();
+                if (this.autoScroll)
+                    this.scrollTo(this.thread.bookmark);
+
+                this.provideTimerID = setTimeout(() => {
+                    this.startProvide();
+                }, 1000);
+            }
+            if (this.thread.bookmark != this.thread.allNum()) {
+                if (this.playingNotificationSound)
+                    this.notificationSound(provide);
+                else
+                    provide();
+            } else {
+                this.haltProvide();
+                this.provideTimerID = setTimeout(() => {
+                    this.startProvide();
+                }, 1000);
+            }
         }
-        this.setProvideTimer();
     }
 
     stopProvide() {
         clearTimeout(this.provideTimerID);
         this.haltProvide();
+        this.provideStatus = "idle";
     }
     haltProvide() {
         this.pManager.cancel();
         this.provideDummyText();
-    }
-    setProvideTimer() {
-        if (!this.processing) return;
-        if (this.provideTimerLimitCountDown < 0) {
-            this.startProvide();
-        } else {
-            this.provideTimerID = window.setTimeout(() => {
-                this.provideTimerLimitCountDown--;
-                this.setProvideTimer();
-            }, 1000);
-        }
     }
 
     start() {
@@ -397,9 +406,7 @@ export default class Application {
     get formattedTimes() {
         let rtcd = this.zeroPadding(this.reloadTimerCountDown);
         let rd = this.zeroPadding(this.reload);
-        let ptcd = this.zeroPadding(this.provideTimerLimitCountDown);
-        let pd = this.zeroPadding(this.provideTimeLimit);
-        return `reload:[${rtcd}/${rd}] next:[${ptcd}/${pd}]`
+        return `reload:[${rtcd}/${rd}] next:[${this.provideStatus}]`
     }
     zeroPadding(number: number, length: number = 2) {
         return (Array(length).join('0') + number).slice(-length);
