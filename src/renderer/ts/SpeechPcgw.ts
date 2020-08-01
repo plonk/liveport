@@ -16,10 +16,10 @@ class SpeechPcgw implements Speaker {
             //auth: '',
             encoding: null,
             timeout: 15000,
-            form: "text=" + text + "&format=mp3",
+            form: "text=" + text + "&format=wav",
         };
         rp.post(options).then(data => {
-            const durl = dataurl.convert({ data, mimetype: 'audio/mp3' });
+            const durl = dataurl.convert({ data, mimetype: 'audio/x-wav' });
             this.audio.src = durl;
             this.audio.play();
         }).catch(err => {
