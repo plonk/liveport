@@ -11,10 +11,6 @@ import { configure } from "./Configure"
 import VoiceTextApi from "./VoiceTextApi"
 import SpeechPcgw from "./SpeechPcgw"
 const SystemDictionary = configure.SystemDictionary;
-const NgDictionary: string[] = configure.NgDictionary;
-const port = configure.port
-const AA_TEMPLATE = "このメッセージはアスキーアートです。";
-const LONG_TEXT_TEMPLATE = "長文のため省略";
 const MODE = {
     AA: "aa",
     MESSAGE: "message"
@@ -43,11 +39,11 @@ export default class ProvideManager {
             this.socket.emit(event, value);
     }
 
-    provide(letter: string, body: string, reading: boolean = true, callback?: () => any, timeLimit?: number) {
+    provide(letter: string, body: string, reading: boolean = true, timeLimit?: number) {
         if (this.containsNg(body)) {
             const ng = () => {
                 if (reading) {
-                    this.speak(letter + "\n" + configure.SystemDictionary.NG.reading, callback, timeLimit);
+                    this.speak(letter + "\n" + configure.SystemDictionary.NG.reading, timeLimit);
                 }
                 this.emit(MODE.MESSAGE, letter + "\r\n" + configure.SystemDictionary.NG.reading);
             }
@@ -63,7 +59,7 @@ export default class ProvideManager {
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
             if (reading)
-                this.speak(letter + "\n" + SystemDictionary.AA.reading, callback, timeLimit);
+                this.speak(letter + "\n" + SystemDictionary.AA.reading, timeLimit);
             this.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
@@ -84,7 +80,7 @@ export default class ProvideManager {
                 let urlReplace = StringUtil.urlToReadable(brReplace);
                 let userDictionary = StringUtil.applyUserDictionary(urlReplace);
                 let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(userDictionary);
-                this.speak(letter + "\n" + ZENHANReplace, callback, timeLimit);
+                this.speak(letter + "\n" + ZENHANReplace, timeLimit);
             }
             this.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }
@@ -95,12 +91,12 @@ export default class ProvideManager {
             messenger();
         }
     }
-    speak(body: string, callback?: () => any, timeLimit?: number) {
+    speak(body: string, timeLimit?: number) {
         let text = body;
         if (this.voice === VOICE.TAMIYASU) {
             text = Tamiyasu.calcStringSize(body, timeLimit);
         }
-        this.speaker.speak(text, this.vParam, callback);
+        this.speaker.speak(text, this.vParam);
     }
     containsNg(text: string): boolean {
         return StringUtil.containsNg(text);

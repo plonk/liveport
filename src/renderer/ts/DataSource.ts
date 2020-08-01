@@ -11,7 +11,7 @@ export abstract class DataSource {
     }
 
     abstract request(success: (number) => void, failed: (err: any) => void);
-    abstract data2json(data: string): number;
+    //abstract data2json(data: string): number;
     abstract getSetting(success: () => void, failed: (err: any) => void);
 
     allNum() {
@@ -39,19 +39,19 @@ export abstract class DataSource {
         return true;
     }
 
-    decodeFromJson(data: any) {
-        var data = JSON.parse(data);
-        this.bookmark = data.bookmark;
-        this.url = data.url;
-        this.title = data.title;
+    decodeFromJson(data: string) {
+        var data1 = JSON.parse(data);
+        this.bookmark = data1.bookmark;
+        this.url = data1.url;
+        this.title = data1.title;
         try {
-            this.parentTitle = data.parentTitle;
+            this.parentTitle = data1.parentTitle;
         } catch (e) {
             this.parentTitle = "";
         }
         var resdata = [];
-        for (var i in data.messages) {
-            var decode = Message.decodeFromJson(JSON.stringify(data.messages[i]));
+        for (var i in data1.messages) {
+            var decode = Message.decodeFromJson(JSON.stringify(data1.messages[i]));
             resdata.push(decode);
         }
         this.messages = resdata;
@@ -79,6 +79,7 @@ export abstract class DataSource {
         return JSON.stringify(this);
     }
 
+    abstract unload();
 
     static loadDataSource(url: string) {
         return localStorage.getItem(url);
@@ -87,12 +88,12 @@ export abstract class DataSource {
     static clearDataSource(url: string) {
         localStorage.removeItem(url);
     }
+
     static clearAllDataSource() {
         for (var a in localStorage) {
             if (a.startsWith("http"))
                 DataSource.clearDataSource(a);
         }
-
     }
 }
 

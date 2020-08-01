@@ -3,43 +3,57 @@ import * as os from "os";
 import Logger from "./Logger";
 import { VoiceParameter } from "./Voice"
 import { Speaker } from "./Speaker"
+import * as  iconv from "iconv-lite";
 const defaultParameter = {
     volume: 50,
     rate: 100,
     pitch: 100
 }
-class SofTalk implements Speaker {
+class Bouyomi implements Speaker {
     path: string = "";
+
     constructor(path: string) {
         this.path = path;
     }
-    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
+
+    speak(text: string, vParam: VoiceParameter) {
         var args = "";
         args += " /Talk " + "\"" + text.replace(/\n/gi, "  ") + "\"";
-        if (vParam.use) args += " " + vParam.adjustmentRate(50, 300);
-        if (vParam.use) args += " " + vParam.adjustmentPitch(50, 200);
-        if (vParam.use) args += " " + vParam.adjustmentVolume(0, 100);
+        if (vParam.use) args += " " + vParam.adjustRate(50, 300);
+        if (vParam.use) args += " " + vParam.adjustPitch(50, 200);
+        if (vParam.use) args += " " + vParam.adjustVolume(0, 100);
         //voice-type
         if (vParam.use) args += " 0";
 
         console.log(this.path + " " + args);
-        cp.exec(this.path + args, (e, s) => {
-            Logger.log("result", s);
-        })
+        const buffer = cp.execSync(this.path + args);
+        const s = iconv.decode(buffer, "CP932");
+        Logger.log("result", s);
     }
 
     cancel() {
-        var args = " /C";
-        cp.exec(this.path + args, (e, s) => {
-            var args = " /S";
-            cp.exec(this.path + args, (e, s) => {
-                console.log(s);
-            });
-        });
+        var args = " /C"; // 全タスクをキャンセル
+        cp.execSync(this.path + args);
+        args = " /S"; // 現在の行をスキップ
+        cp.execSync(this.path + args);
     }
     speaking() {
-        return true;
+        let buffer: Buffer;
+        try {
+            buffer = cp.execSync(this.path + " /GetNowPlaying");
+        } catch (e) {
+            // 音声再生中は終了コードが１になるのでコマンドの実行に失敗したかのようになる。
+            return true;
+        }        
+        const s = iconv.decode(buffer, "CP932");
+        if (s.search("無音状態中") != -1) {
+            return false;
+        } else {
+            // なにかおかしい。
+            console.error(s);
+            return false;
+        }
     }
 }
 
-export default SofTalk;
+export default Bouyomi;

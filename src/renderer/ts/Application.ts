@@ -1,11 +1,10 @@
 "use strict"
-import * as Vue from "vue";
 import { Component, Watch } from "vue-typed"
 import { DataSource } from "./DataSource";
 import { Shitaraba } from "./Shitaraba";
 import { Nichan } from "./Nichan";
-import { VOICE, VoiceParameter } from "./Voice"
-import StringUtil from "./StringUtil";
+import { Twitch } from "./Twitch";
+import { VOICE } from "./Voice"
 import ProvideManager from "./ProvideManager";
 import { configure } from "./Configure"
 const LETTER: string = configure.letter;
@@ -22,14 +21,15 @@ enum KEY {
 }
 
 @Component({})
-export default class Application extends Vue {
+export default class Application {
     pManager: ProvideManager;
     testMessage: string = 'このテキストはテストメッセージです';
     url: string = "";
     processing: boolean = false;
     thread: DataSource;
+    dataSources = [Shitaraba, Twitch, Nichan];
+
     constructor() {
-        super();
         console.log("hello application.");
         this.init();
     }
@@ -79,55 +79,69 @@ export default class Application extends Vue {
         }
     }
 
-    // 読み上げ時間数上限
-    provideTimeLimit: number = 10;
-    // 表示タイマーID
-    provideTimerID: number;
-    // 表示カウントダウン
-    provideTimerLimitCountDown: number = this.provideTimeLimit;
-
+    provideStatus = "idle";
+    provideTimeLimit = 10;
+    provideTimerID = null;
+    lastProvideStart = 0;
     startProvide() {
-        if (!this.processing) return;
-        this.provideTimerLimitCountDown = this.provideTimeLimit;
-        let provide = () => {
-            if (!this.processing) return;
-            let target = this.thread.messages[this.thread.bookmark];
-            let tmpLetter = LETTER.split("$1");
-            let letter = tmpLetter.length > 1 ?
-                tmpLetter[0] + target.num + tmpLetter[1]
-                : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
-            this.thread.next();
-            if (this.autoScroll)
-                this.scrollTo(this.thread.bookmark);
-        }
-        if (this.thread.bookmark != this.thread.allNum()) {
-            if (this.playingNotificationSound) this.notificationSound(provide);
-            else provide();
+        if (!this.processing)
+            return;
+
+        if (this.pManager.speaker.speaking()) {
+            this.provideStatus = "busy";
+            if (+new Date() - this.lastProvideStart >= this.provideTimeLimit*1000) {
+                this.pManager.cancel();
+            }
+            this.provideTimerID = setTimeout(() => {
+                this.startProvide();
+            }, 1000);
         } else {
-            this.haltProvide();
+            this.provideStatus = "idle";
+            let provide = () => {
+                if (!this.processing) return;
+                let target = this.thread.messages[this.thread.bookmark];
+
+                const letter = this.interpolateLetter(target.num);
+
+                this.lastProvideStart = +new Date();
+                this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.provideTimeLimit);
+                this.thread.next();
+                if (this.autoScroll)
+                    this.scrollTo(this.thread.bookmark);
+
+                this.provideTimerID = setTimeout(() => {
+                    this.startProvide();
+                }, 1000);
+            }
+            if (this.thread.bookmark != this.thread.allNum()) {
+                if (this.playingNotificationSound)
+                    this.notificationSound(provide);
+                else
+                    provide();
+            } else {
+                this.haltProvide();
+                this.provideTimerID = setTimeout(() => {
+                    this.startProvide();
+                }, 1000);
+            }
         }
-        this.setProvideTimer();
+    }
+
+    interpolateLetter(num: number) {
+        let tmpLetter = LETTER.split("$1");
+        return tmpLetter.length > 1 ?
+            tmpLetter[0] + num + tmpLetter[1]
+            : num.toString();
     }
 
     stopProvide() {
         clearTimeout(this.provideTimerID);
         this.haltProvide();
+        this.provideStatus = "idle";
     }
     haltProvide() {
         this.pManager.cancel();
         this.provideDummyText();
-    }
-    setProvideTimer() {
-        if (!this.processing) return;
-        if (this.provideTimerLimitCountDown < 0) {
-            this.startProvide();
-        } else {
-            this.provideTimerID = window.setTimeout(() => {
-                this.provideTimerLimitCountDown--;
-                this.setProvideTimer();
-            }, 1000);
-        }
     }
 
     start() {
@@ -137,7 +151,7 @@ export default class Application extends Vue {
             return;
         }
 
-        if (this.isValidBBSUrl()) {
+        if (!this.isValidThreadUrl() && this.isValidBbsUrl()) {
             this.showLists();
             this.processing = false;
             return;
@@ -195,32 +209,32 @@ export default class Application extends Vue {
     }
 
     requestOnce(load: boolean = false) {
+        console.log("requestOnce", this.url);
         this.stop();
-        if (this.isValidBBSUrl()) {
-            this.showLists();
-            return;
-        }
-        if (!this.isvalidThreadUrl()) {
-            return;
-        }
-        this.showListView = false;
-        this.loadUrlSource(load);
-        if (load) this.initScroll();
-        this.snackbar({ message: "読み込みを開始しました" });
-        this.getBbsTitle();
-        this.thread.request(
-            (newArrival: number) => {
-                this.snackbar({ message: "読み込みに成功しました" });
-                console.log("request success", newArrival.toString());
-            },
-            (err: any) => {
-                console.log("request failed", err);
-                let warn = {
-                    message: "ERROR : " + err, timeout: 1500
+        if (this.isValidThreadUrl()) {
+            this.showListView = false;
+            this.loadUrlSource(load);
+            if (load) this.initScroll();
+            this.snackbar({ message: "読み込みを開始しました" });
+            this.getBbsTitle();
+            this.thread.request(
+                (newArrival: number) => {
+                    this.snackbar({ message: "読み込みに成功しました" });
+                    console.log("request success", newArrival.toString());
+                },
+                (err: any) => {
+                    console.log("request failed", err);
+                    let warn = {
+                        message: "ERROR : " + err, timeout: 1500
+                    }
+                    this.snackbar(warn);
                 }
-                this.snackbar(warn);
-            }
-        );
+            );
+        } else if (this.isValidBbsUrl()) {
+            this.showLists();
+        } else {
+            return;
+        }
     }
 
     getBbsTitle() {
@@ -242,19 +256,21 @@ export default class Application extends Vue {
 
     showLists() {
         this.showListView = true;
+
         if (!this.isValidURL()) {
             this.snackbar({ message: "URLが正しくありません" });
+            return;
         }
-        if (this.isValidBBSUrl()) {
-            if (Shitaraba.isValidBBSURL(this.url)) {
-                this.thread = new Shitaraba(this.url);
-            } else if (Nichan.isValidBBSURL(this.url)) {
-                this.thread = new Nichan(this.url);
-            } else {
-                // 上の２節のどちらかは通るはず。
-                throw new Error("logic error");
-            }
-        }
+        
+        // if (this.isValidBbsUrl()) {
+        //     for (var ds of this.dataSources) {
+        //         if (ds.isValidBbsUrl(this.url)) {
+        //             this.thread = new ds(this.url);
+        //             break;
+        //         }
+        //     }
+        // }
+
         this.snackbar({ message: "一覧の読み込みを開始" });
         this.thread.getLists(() => {
             this.snackbar({ message: "一覧の読み込みに成功" });
@@ -314,7 +330,7 @@ export default class Application extends Vue {
     }
 
     get validThreadControlls() {
-        return !this.isvalidThreadUrl() || this.showListView;
+        return !this.isValidThreadUrl() || this.showListView;
     }
 
     get validUrl() {
@@ -357,8 +373,8 @@ export default class Application extends Vue {
 
     test(letter: string, body: string) {
         this.pManager.selectVoice(this.path);
-        this.pManager.provide(letter, body, this.pManager.reading, null, this.provideTimeLimit);
-    }
+        this.pManager.provide(letter, body, this.pManager.reading, this.provideTimeLimit);
+    }       
 
     autoScroll: boolean = false;
     flipAutoScroll() {
@@ -393,14 +409,9 @@ export default class Application extends Vue {
     }
 
     get formattedTimes() {
-        let rtcd = this.zeroPadding(this.reloadTimerCountDown);
-        let rd = this.zeroPadding(this.reload);
-        let ptcd = this.zeroPadding(this.provideTimerLimitCountDown);
-        let pd = this.zeroPadding(this.provideTimeLimit);
-        return `reload:[${rtcd}/${rd}] next:[${ptcd}/${pd}]`
-    }
-    zeroPadding(number: number, length: number = 2) {
-        return (Array(length).join('0') + number).slice(-length);
+        let rtcd = this.reloadTimerCountDown.toString().padStart(2,'0');
+        let rd = this.reload.toString().padStart(2,'0');
+        return `reload:[${rtcd}/${rd}] next:[${this.provideStatus}]`
     }
 
     path: string = "";
@@ -427,33 +438,36 @@ export default class Application extends Vue {
             console.log("invalid url", "no input.");
             return false;
         }
-        if (this.isValidBBSUrl()) {
-            return true;
-        }
-        return this.isvalidThreadUrl();
+        return this.isValidBbsUrl() || this.isValidThreadUrl();
     }
 
-    isValidBBSUrl() {
-        return Shitaraba.isValidBBSURL(this.url) || Nichan.isValidBBSURL(this.url) ;
+    isValidBbsUrl(): boolean {
+        return this.dataSources.some(ds => ds.isValidBbsUrl(this.url));
     }
 
-    isvalidThreadUrl(): boolean {
-        return Shitaraba.isValidThreadURL(this.url) || Nichan.isValidThreadURL(this.url);
+    isValidThreadUrl(): boolean {
+        return this.dataSources.some(ds => ds.isValidThreadUrl(this.url));
+    }
+
+    unloadDataSource() {
+        if (this.thread)
+            this.thread.unload();
+        this.thread = null;
     }
 
     // allocate
     loadUrlSource(load: boolean = true) {
-        if (Shitaraba.isValidThreadURL(this.url)) {
-            this.url = Shitaraba.getFormattingShitarabaUrl(this.url);
-            this.thread = new Shitaraba(this.url);
-            if (load) {
-                this.thread.load();
-            }
-        }
-        if (Nichan.isValidThreadURL(this.url)) {
-            this.thread = new Nichan(this.url);
-            if (load) {
-                this.thread.load();
+        for (var ds of this.dataSources) {
+            if (ds.isValidThreadUrl(this.url)) {
+                if (ds.getFormattedUrl) {
+                    this.url = ds.getFormattedUrl(this.url);
+                }
+                this.unloadDataSource();
+                this.thread = new ds(this.url);
+                if (load) {
+                    this.thread.load();
+                }
+                return;
             }
         }
     }
@@ -505,6 +519,7 @@ export default class Application extends Vue {
     }
 
     version = VERSION;
+    electronVersion = require('electron').remote.process.versions.electron;
 
     getValueOrDefault(value1: any, value2: any) {
         if (typeof value1 === "undefined")
@@ -514,6 +529,7 @@ export default class Application extends Vue {
 
     init() {
         this.pManager = new ProvideManager();
+        this.unloadDataSource();
         this.thread = new Shitaraba("dummyThread");
         this.port = port;
         let argv = this.getArgv();
@@ -552,7 +568,6 @@ export default class Application extends Vue {
         this.reload = Number(this.getValueOrDefault(settings.reload, this.reload));
         this.reloadTimerCountDown = this.reload;
         this.provideTimeLimit = Number(this.getValueOrDefault(settings.provideTimeLimit, this.provideTimeLimit));
-        this.provideTimerLimitCountDown = this.provideTimeLimit;
         this.pManager.reading = Boolean(this.getValueOrDefault(settings.reading, this.pManager.reading));
         this.path = this.getValueOrDefault(settings.path, this.path);
         this.dummyTextTemp = this.dummyText = this.getValueOrDefault(settings.dummyText, this.dummyText);
@@ -563,7 +578,7 @@ export default class Application extends Vue {
         this.url = this.getValueOrDefault(settings.url, this.url);
         if (argv.url) { this.url = argv.url; }
         if (this.url) {
-            if (this.isvalidThreadUrl()) {
+            if (this.isValidThreadUrl()) {
                 this.requestOnce(true);
             }
         }
@@ -682,6 +697,7 @@ export default class Application extends Vue {
     clearDataSource() {
         DataSource.clearAllDataSource();
         this.snackbar({ message: "キャッシュを消去しました" });
+        this.unloadDataSource();
         this.thread = new Shitaraba("dummyThread");
         this.url = "";
     }

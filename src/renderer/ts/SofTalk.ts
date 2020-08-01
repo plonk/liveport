@@ -10,19 +10,23 @@ const defaultParameter = {
 }
 class SofTalk implements Speaker {
     path: string = "";
+    _speaking = false;
+
     constructor(path: string) {
         this.path = path;
     }
-    // 0-100 1-300 1-300
+
+    // 0-100 1-300 0-300
     // SofTalkは読み上げ終了を検知出来ない
-    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
+    speak(text: string, vParam: VoiceParameter) {
         var args = "";
-        if (vParam.use) args += " /V:" + vParam.adjustmentVolume(0, 100);
-        if (vParam.use) args += " /S:" + vParam.adjustmentRate(1, 300);
-        if (vParam.use) args += " /O:" + vParam.adjustmentPitch(1, 300);
+        if (vParam.use) args += " /V:" + vParam.adjustVolume(0, 100);
+        if (vParam.use) args += " /S:" + vParam.adjustRate(1, 300);
+        if (vParam.use) args += " /O:" + vParam.adjustPitch(0, 300);
         args += " /W:" + text.replace(/\n/gi, "  ");
 
         // console.log(this.path +" " +args);
+        this._speaking = true;
         cp.spawn(this.path, [args]).on("exit", (code) => {
             Logger.log("result", code);
         }).on("error", (err) => {
@@ -34,11 +38,13 @@ class SofTalk implements Speaker {
     cancel() {
         var args = " /stop_now";
         cp.exec(this.path + args, (e, s) => {
+            this._speaking = false;
             console.log(s);
         });
     }
+
     speaking() {
-        return true;
+        return this._speaking;
     }
 }
 
