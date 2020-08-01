@@ -9,6 +9,7 @@ import Logger from "./Logger";
 import { Speaker } from "./Speaker"
 import { configure } from "./Configure"
 import VoiceTextApi from "./VoiceTextApi"
+import SpeechPcgw from "./SpeechPcgw"
 const SystemDictionary = configure.SystemDictionary;
 const NgDictionary: string[] = configure.NgDictionary;
 const port = configure.port
@@ -125,6 +126,8 @@ export default class ProvideManager {
             this.speaker = new Bouyomi(path);
         } else if (this.voice === VOICE.VOICETEXT) {
             this.speaker = new VoiceTextApi(this.vtApiKey);
+        } else if (this.voice === VOICE.SPEECH_PCGW) {
+            this.speaker = new SpeechPcgw();
         }
     }
 

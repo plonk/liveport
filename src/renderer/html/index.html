@@ -50,25 +50,34 @@
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">mic</i> 読み上げボイス</label><br>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
-                            <input type="radio" id="option-1" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="1" v-bind:disabled="processing">
+                            <input type="radio" id="option-1" class="mdl-radio__button" v-model="pManager.voice" v-bind:value="1"
+                                v-bind:disabled="processing">
                             <span class="mdl-radio__label">WSA</span>
-                    </label>
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
-                            <input type="radio" id="option-2" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="2" v-bind:disabled="processing">
+                        </label>
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
+                            <input type="radio" id="option-2" class="mdl-radio__button" v-model="pManager.voice" v-bind:value="2"
+                                v-bind:disabled="processing">
                             <span class="mdl-radio__label">SofTalk</span>
                         </label>
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-3">
-                            <input type="radio" id="option-3" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="3" v-bind:disabled="processing">
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-3">
+                            <input type="radio" id="option-3" class="mdl-radio__button" v-model="pManager.voice" v-bind:value="3"
+                                v-bind:disabled="processing">
                             <span class="mdl-radio__label">民安talk</span>
                         </label>
-                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-4">
-                            <input type="radio" id="option-4" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="4" v-bind:disabled="processing">
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-4">
+                            <input type="radio" id="option-4" class="mdl-radio__button" v-model="pManager.voice" v-bind:value="4"
+                                v-bind:disabled="processing">
                             <span class="mdl-radio__label">棒読みちゃん</span>
                         </label>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-5">
-                            <input type="radio" id="option-5" class="mdl-radio__button" v-model="pManager.voice"
-                                v-bind:value="5" v-bind:disabled="processing">
+                            <input type="radio" id="option-5" class="mdl-radio__button" v-model="pManager.voice" v-bind:value="5"
+                                v-bind:disabled="processing">
                             <span class="mdl-radio__label">VoiceText Web API</span>
+                        </label>
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-6">
+                            <input type="radio" id="option-5" class="mdl-radio__button" v-model="pManager.voice" v-bind:value="6"
+                                v-bind:disabled="processing">
+                            <span class="mdl-radio__label">Speech PCGW</span>
                         </label>
                     </span>
                     <span class="mdl-navigation__link">

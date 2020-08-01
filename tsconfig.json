@@ -36,6 +36,7 @@
         "src/renderer/ts/Nichan.ts",
         "src/renderer/ts/Voice.ts",
         "src/renderer/ts/VoiceTextApi.ts",
+        "src/renderer/ts/SpeechPcgw.ts",
         "src/renderer/ts/WebSpeechApi.ts"
     ]
 }
